@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - "dev"
-    paths:
-      - .github/workflows/build_deploy_prod.yaml
-      - "worker/**"
 
 env:
   AWS_REGION: us-east-1
