@@ -70,7 +70,7 @@ jobs:
 
   master:
     name: Example Pull Image on master
-    runs-on: master
+    runs-on: ubuntu-latest  # change this to a valid runner
     steps:
       - name: Update runner's docker Version, as worker module requires it
         run: |
@@ -96,16 +96,14 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
-
-        # Build docker images for vote module and push it to ECR so that it can be deployed to EKS
         run: |
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result
 
- node1:
+  node1:
     name: Example Pull Image on node1
-    runs-on: node1
+    runs-on: ubuntu-latest  # change this to a valid runner
     steps:
       - name: Update runner's docker Version, as worker module requires it
         run: |
@@ -131,15 +129,14 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
-
-        # Build docker images for vote module and push it to ECR so that it can be deployed to EKS
         run: |
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result
 
- node2:
-    runs-on: node2
+  node2:
+    name: Example Pull Image on node2
+    runs-on: ubuntu-latest  # change this to a valid runner
     steps:
       - name: Update runner's docker Version, as worker module requires it
         run: |
@@ -165,16 +162,14 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
-
-        # Build docker images for vote module and push it to ECR so that it can be deployed to EKS
         run: |
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result
 
   deploy:  
-    name: Example Deploy Application into docker swarm
-    runs-on: master
+    name: Example Deploy Application into Docker Swarm
+    runs-on: ubuntu-latest  # change this to a valid runner
     steps:
       - name: Checkout
         uses: actions/checkout@v3
