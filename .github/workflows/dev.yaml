@@ -3,15 +3,15 @@ name: Example Build Image
 on:
   push:
     branches:
-      - "prod"
+      - "dev"
     paths:
       - .github/workflows/build_deploy_prod.yaml
       - "worker/**"
 
 env:
   AWS_REGION: us-east-1                 
-  ECR_REPOSITORY: voting-app 
-  ENV: "prod"
+  ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
+  ENV: "dev"
 
 permissions:
   id-token: write
@@ -44,9 +44,8 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         WORKER_IMAGE_TAG: worker-${{ env.ENV }}-latest
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$WORKER_IMAGE_TAG --build-arg aws_region=${{ env.AWS_REGION }} --build-arg copy_or_mount="copy" -f worker/Dockerfile ./worker
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$WORKER_IMAGE_TAG
-        echo "::set-output name=worker_image::$ECR_REGISTRY/$ECR_REPOSITORY:$WORKER_IMAGE_TAG"
+        docker build -t 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker ./worker
+        docker push 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
 
     - name: End Build
       run: echo "Build Success"
