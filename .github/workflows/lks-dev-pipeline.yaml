@@ -70,7 +70,8 @@ jobs:
 
   master:
     name: Example Pull Image on master
-    runs-on: ubuntu-latest  # change this to a valid runner
+    runs-on: master
+    needs: build
     steps:
       - name: Update runner's docker Version, as worker module requires it
         run: |
@@ -103,7 +104,8 @@ jobs:
 
   node1:
     name: Example Pull Image on node1
-    runs-on: ubuntu-latest  # change this to a valid runner
+    runs-on: node1
+    needs: build
     steps:
       - name: Update runner's docker Version, as worker module requires it
         run: |
@@ -136,7 +138,8 @@ jobs:
 
   node2:
     name: Example Pull Image on node2
-    runs-on: ubuntu-latest  # change this to a valid runner
+    runs-on: node2
+    needs: build
     steps:
       - name: Update runner's docker Version, as worker module requires it
         run: |
@@ -169,7 +172,11 @@ jobs:
 
   deploy:  
     name: Example Deploy Application into Docker Swarm
-    runs-on: ubuntu-latest  # change this to a valid runner
+    runs-on: master
+    needs:
+      - master
+      - node1
+      - node2
     steps:
       - name: Checkout
         uses: actions/checkout@v3
