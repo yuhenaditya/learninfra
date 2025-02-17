@@ -9,7 +9,7 @@ on:
       - "worker/**"
 
 env:
-  AWS_REGION: us-east-1                 
+  AWS_REGION: us-east-1
   ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
   ENV: "dev"
 
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: Production
     steps:
-    - name: Checkout
+    - name: Checkout repository
       uses: actions/checkout@v3
 
     - name: Configure AWS Credentials
@@ -44,7 +44,9 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         WORKER_IMAGE_TAG: worker-${{ env.ENV }}-latest
       run: |
+        echo "Building Docker image..."
         docker build -t 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker ./worker
+        echo "Pushing Docker image to ECR..."
         docker push 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
 
     - name: End Build
