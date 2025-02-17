@@ -32,11 +32,11 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Login to Amazon ECR
-      id: login-ecr
+      id: login-ecr-build
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build, tag, and push image vote
-      id: build-image
+      id: build-image-vote
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
@@ -46,7 +46,7 @@ jobs:
         docker push 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote
 
     - name: Build, tag, and push image worker
-      id: build-image
+      id: build-image-worker
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
@@ -56,7 +56,7 @@ jobs:
         docker push 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
 
     - name: Build, tag, and push image result
-      id: build-image
+      id: build-image-result
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
@@ -88,11 +88,11 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           
       - name: Login to Amazon ECR
-        id: login-ecr
+        id: login-ecr-pullmaster
         uses: aws-actions/amazon-ecr-login@v1
   
       - name: Pull image
-        id: pull-image
+        id: pull-image-master
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
@@ -121,11 +121,11 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
-        id: login-ecr
+        id: login-ecr-pullnode1
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Pull image
-        id: pull-image
+        id: pull-image-node1
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
@@ -154,11 +154,11 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
-        id: login-ecr
+        id: login-ecr-pullnode2
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Pull image
-        id: pull-image
+        id: pull-image-node2
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
