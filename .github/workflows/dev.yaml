@@ -139,7 +139,6 @@ jobs:
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result
 
  node2:
-    name: Example Pull Image on node2
     runs-on: node2
     steps:
       - name: Update runner's docker Version, as worker module requires it
