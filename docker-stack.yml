@@ -22,7 +22,7 @@ services:
       - backend
 
   vote:
-    image: dockersamples/examplevotingapp_vote
+    image: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote
     ports:
       - 5000:80
     networks:
@@ -31,7 +31,7 @@ services:
       replicas: 3
 
   result:
-    image: dockersamples/examplevotingapp_result
+    image: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result
     ports:
       - 5001:80
     networks:
@@ -40,7 +40,7 @@ services:
       replicas: 3
 
   worker:
-    image: dockersamples/examplevotingapp_worker
+    image: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
     networks:
       - frontend
       - backend

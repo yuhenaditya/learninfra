@@ -35,22 +35,41 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
+    - name: Build, tag, and push image vote
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        WORKER_IMAGE_TAG: worker-${{ env.ENV }}-latest
+      run: |
+        echo "Building Docker image..."
+        docker build -t 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote ./vote
+        echo "Pushing Docker image to ECR..."
+        docker push 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote
+
+    - name: Build, tag, and push image worker
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
         echo "Building Docker image..."
         docker build -t 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker ./worker
         echo "Pushing Docker image to ECR..."
         docker push 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
 
+    - name: Build, tag, and push image result
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: |
+        echo "Building Docker image..."
+        docker build -t 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result ./result
+        echo "Pushing Docker image to ECR..."
+        docker push 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result
+
     - name: End Build
       run: echo "Build Success"
 
-  node1:
-    name: Example Pull Image on node1
+  master:
+    name: Example Pull Image on master
     runs-on: master
     steps:
       - name: Update runner's docker Version, as worker module requires it
@@ -81,3 +100,91 @@ jobs:
         # Build docker images for vote module and push it to ECR so that it can be deployed to EKS
         run: |
           docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
+          docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote
+          docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result
+
+ node1:
+    name: Example Pull Image on node1
+    runs-on: node1
+    steps:
+      - name: Update runner's docker Version, as worker module requires it
+        run: |
+          docker --version
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Pull image
+        id: pull-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
+
+        # Build docker images for vote module and push it to ECR so that it can be deployed to EKS
+        run: |
+          docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
+          docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote
+          docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result
+
+ node2:
+    name: Example Pull Image on node2
+    runs-on: node2
+    steps:
+      - name: Update runner's docker Version, as worker module requires it
+        run: |
+          docker --version
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Pull image
+        id: pull-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
+
+        # Build docker images for vote module and push it to ECR so that it can be deployed to EKS
+        run: |
+          docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
+          docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote
+          docker pull 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result
+
+  deploy:  
+    name: Example Deploy Application into docker swarm
+    runs-on: master
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy application images to Docker Swarm
+        run: |
+          docker node ls
+          docker service ls
+          docker stack ls
+          docker stack rm stackdemo
+          sleep 30
+          docker stack deploy --compose-file docker-stack.yml stackdemo
