@@ -8,10 +8,16 @@ on:
 env:
   AWS_REGION: us-east-1                 
   ECR_REPOSITORY: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra
-  ECS_SERVICE_WORKER: worker-service          
-  ECS_CLUSTER: demo-deploy
+  ECS_SERVICE_WORKER: lks-worker-service
+  ECS_SERVICE_VOTE: lks-vote-service
+  ECS_SERVICE_RESULT: lks-result-service
+  ECS_CLUSTER: learninfra
   WORKER_TASK_DEFINITION: worker/task-definition.json
-  WORKER_CONTAINER_NAME: worker-container
+  VOTE_TASK_DEFINITION: vote/task-definition.json
+  RESULT_TASK_DEFINITION: result/task-definition.json
+  WORKER_CONTAINER_NAME: lks-worker-container
+  VOTE_CONTAINER_NAME: lks-vote-container
+  RESULT_CONTAINER_NAME: lks-result-container
   ENV: "prod"
 
 permissions:
@@ -39,26 +45,51 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Set Variable
-      id: set-vars
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        WORKER_IMAGE_TAG: worker
-      run: |
-        echo "::set-output name=worker_image::$ECR_REPOSITORY:$WORKER_IMAGE_TAG"
-
-    - name: Fill in the new image ID in the Amazon ECS task definition (Worker)
+    - name: Fill in the new image ID in the Amazon ECS task definition (worker)
       id: task-def-worker
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: ${{ env.WORKER_TASK_DEFINITION }}
         container-name: ${{ env.WORKER_CONTAINER_NAME }}
-        image: ${{ steps.set-vars.outputs.worker_image }}
+        image: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:worker
+
+    - name: Fill in the new image ID in the Amazon ECS task definition (vote)
+      id: task-def-vote
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ env.VOTE_TASK_DEFINITION }}
+        container-name: ${{ env.VOTE_CONTAINER_NAME }}
+        image: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:vote
+
+    - name: Fill in the new image ID in the Amazon ECS task definition (result)
+      id: task-def-result
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ env.RESULT_TASK_DEFINITION }}
+        container-name: ${{ env.RESULT_CONTAINER_NAME }}
+        image: 121731170468.dkr.ecr.us-east-1.amazonaws.com/learninfra:result
 
     - name: Deploy Amazon ECS task definition Worker
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def-worker.outputs.task-definition }}
         service: ${{ env.ECS_SERVICE_WORKER }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
+
+    - name: Deploy Amazon ECS task definition vote
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def-vote.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE_VOTE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true
+
+
+    - name: Deploy Amazon ECS task definition result
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def-result.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE_RESULT }}
         cluster: ${{ env.ECS_CLUSTER }}
         wait-for-service-stability: true
